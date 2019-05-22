@@ -14,7 +14,11 @@ import {
 	DidChangeConfigurationNotification,
 	CompletionItem,
 	CompletionItemKind,
-	TextDocumentPositionParams
+	TextDocumentPositionParams,
+	SymbolKind,
+	MarkupKind,
+	InsertTextFormat,
+	TextEdit
 } from 'vscode-languageserver';
 
 // Create a connection for the server. The connection uses Node's IPC as a transport.
@@ -126,7 +130,6 @@ documents.onDidChangeContent(change => {
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
 	// In this simple example we get the settings for every validate run.
 	let settings = await getDocumentSettings(textDocument.uri);
-
 	// The validator creates diagnostics for all uppercase words length 2 and more
 	let text = textDocument.getText();
 	let pattern = /\b[A-Z]{2,}\b/g;
@@ -183,14 +186,28 @@ connection.onCompletion(
 		// info and always provide the same completion items.
 		return [
 			{
+				documentation: {
+					kind: MarkupKind.Markdown,
+					value: 'TypeScript docs'
+				},
+				kind: SymbolKind.Function,
+				label: 'TypeScript'
+			},
+			{
+				documentation: {
+					kind: MarkupKind.Markdown,
+					value: 'TypeScript docs'
+				},
+				// insertText: 'TypeScript',
+				insertTextFormat: InsertTextFormat.Snippet,
+				kind: CompletionItemKind.Snippet,
+				textEdit: TextEdit.insert(_textDocumentPosition.position, 'TypeScript'),
+				label: 'TypeScript'
+			},
+			{
 				label: 'TypeScript',
 				kind: CompletionItemKind.Text,
 				data: 1
-			},
-			{
-				label: 'JavaScript',
-				kind: CompletionItemKind.Text,
-				data: 2
 			}
 		];
 	}
